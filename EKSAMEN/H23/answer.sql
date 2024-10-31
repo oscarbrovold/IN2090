@@ -14,3 +14,13 @@ FROM område o
 JOIN sensor s ON (oid)
 JOIN måling m ON (sid)
 WHERE o.navn LIKE 'Bærum' AND ( m.nedbør > 0 OR m.vind > 5);
+
+-- Skriv en spørring som finner navn på de tre områdene med færrest sensorer per
+-- kvadratkilometer Det kan forekomme områder uten sensorer, og disse skal også med. 
+
+SELECT o.navn, 
+
+SELECT s.oid, count(*) as nr_of_sensors
+FROM område o
+JOIN sensor s ON (oid)
+GROUP BY s.oid 
