@@ -60,8 +60,12 @@ WHERE vinner = 'sort'
 -- returnere navn på turneringen og navnet på spilleren som vant turneringen. Du
 -- kan bruke viewet fra forrige oppgave om du ønsker.
 
-
-
+SELECT *
+FROM turnering t 
+JOIN parti p USING (tid)
+JOIN resultat USING (pid)
+JOIN spiller s USING (sid)
+GROUP BY t.tid, t.navn
 
 
 
