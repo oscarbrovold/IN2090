@@ -60,13 +60,30 @@ WHERE vinner = 'sort'
 -- returnere navn på turneringen og navnet på spilleren som vant turneringen. Du
 -- kan bruke viewet fra forrige oppgave om du ønsker.
 
-SELECT *
-FROM turnering t 
-JOIN parti p USING (tid)
-JOIN resultat USING (pid)
-JOIN spiller s USING (sid)
-GROUP BY t.tid, t.navn
+WITH poeng AS (
+	(SELECT p.tid, r.sid, 1 AS poeng
+	FROM parti p
+       	JOIN resultat r USING (pid)
+	WHERE r.utfall = 'vant')
+	UNION
+	(SELECT p.tid, r.sid, 0.5 AS poeng
+	FROM parti p
+	JOIN resultat r USING (pid)
+	WHERE r.utfall = 'remis'),
+     sum_poeng AS (
+	(SELECT p.tid, p.sid, sum(p.poeng) AS total_points
+	FROM poeng p
+	GROUP BY p.tid, p.sid)
 
+SELECT t.navn, s.navn AS vinner
+FROM turnering AS t, spiller AS s
+WHERE s.sid = (
+	SELECT p.sid
+	FROM sum_poeng p
+	WHERE p.tid = t.tid
+	ORDER BY total_points DESC
+	LIMIT 1
+);
 
 
 
