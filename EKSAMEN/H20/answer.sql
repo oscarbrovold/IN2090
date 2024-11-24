@@ -62,6 +62,43 @@ WHERE v.dato = current_date AND p.adresse IS NOT NULL)
 -- finner den byen i Frankrike med opphold (0 mm. nedbør) i morgen (17.12.2020),
 -- som har minst 3 kaféer og som har flest museer.
 
+WITH byer_uten_nedbør_imorgen AS (
+SELECT bid
+FROM værmelding v
+JOIN by b USING (bid)
+JOIN land l USING (lid)
+WHERE v.nedbør = 0 
+AND v.dato = '2020-12-17'
+AND l.navn = 'Frankrike'),
+
+byer_med_minst_tre_kafeer AS (
+SELECT bid 
+FROM poi p
+WHERE p.type = 'kafé' 
+GROUP BY p.bid
+HAVING count(*) >= 3),
+
+antall_museer_per_by AS (
+SELECT bid, count(*) as antall_museer
+FROM poi p
+WHERE p.type = 'museum'
+GROUP BY p.bid
+ORDER antall_museer)
+
+SELECT b.navn
+FROM byer_uten_nedbør_imorgen n
+JOIN byer_med_minst_tre_kafeer k USING (bid)
+JOIN antall_museer_per_by m USING (bid)
+JOIN by b USING (bid)
+ORDER BY m.antall_museer DESC
+LIMIT 1;
+
+
+
+
+
+
+
 
 
 
