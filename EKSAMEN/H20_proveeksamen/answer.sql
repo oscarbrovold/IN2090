@@ -48,8 +48,58 @@ FROM oversikt o1
 JOIN oversikt o2 USING (gid)
 WHERE o1.bid != o2.bid;
 
+-- Oppgave 9 - Populære gaver
+-- Skriv en spørring som finner de tre mest populære nyttige gavene, og de tre
+-- mest populære unyttige gavene. Resultatet skal inneholde navn på gaven, antall
+-- barn som ønsker gaven, samt hvorvidt den er nyttig eller ikke. Du kan benytte
+-- view’et fra oppgave 7.
 
+(SELECT o.gave, count(o.barn) AS antall_ønsker, true AS nyttig
+FROM oversikt o
+WHERE o.nyttig
+GROUP BY o.gid, o.gave
+ORDER BY antall_ønsker DESC
+LIMIT 3)
+UNION
+(SELECT o.gave, count(o.barn) AS antall_ønsker, false AS nyttig
+FROM oversikt o
+WHERE NOT o.nyttig
+GROUP BY o.gid, o.gave
+ORDER BY antall_ønsker DESC
+LIMIT 3);
 
+-- Oppgave 10 - Gaveliste
+-- Skriv en spørring som tilordner gaver til barn i henhold til følgende regler:
+-- • Snille barn får alt de ønsker seg
+-- • Usnille får kun nyttige ting de ønsker seg. Om de ikke ønsker seg noen nyttige ting får 
+-- de gaven med navn 'Genser'.
+-- Spørringen skal skrive ut navnet på barnet og navnet på gaven. Merk, du kan bruke view’et fra oppgave 7.
+
+WITH snille_barn AS (
+SELECT b.bid, b.navn AS barn
+FROM barn b
+WHERE snill),
+usnille_barn AS (
+SELECT b.bid, b.navn AS barn
+FROM barn b
+WHERE NOT snill)
+
+(SELECT sb.barn, g.navn AS gave
+FROM ønskeliste ø
+JOIN snille_barn sb ON (sb.bid = ø.barn)
+JOIN gave g ON (ø.gave = g.gid))
+UNION ALL
+(SELECT usb.barn, g.navn AS gave
+FROM ønskelist ø
+JOIN usnille_barn usb ON (usb.bid = ø.barn)
+JOIN gave g ON (ø.gave = g.gid)
+WHERE g.nyttig)
+UNION ALL
+(SELECT usb.barn, 'Genser' AS gave
+FROM ønskelist ø
+JOIN usnille_barn usb ON (usb.bid = ø.barn)
+LEFT JOIN gave g ON (ø.gave = g.gid)
+WHERE g.nyttig AND g.gid IS NULL);
 
 
 
