@@ -83,7 +83,12 @@ JOIN planet p USING (sid)
 JOIN måne m USING (pid)
 
 
+-- Oppgave 3 - Relasjonsalgebra
 
+SELECT o.navn
+FROM observator o
+JOIN stjerne s USING (oid)
+WHERE s.lysstyrke > 50;
 
 
 
