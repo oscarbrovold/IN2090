@@ -76,4 +76,37 @@ WHERE c.counter = (SELECT max(counter)
 	WHERE spilletype = c.spilletype)
 
 
+--- Alternavtivt
+WITH apningstrekk AS (
+(SELECT tu.spilltype, t.trekk, count(*) AS antall_apninger
+FROM trekk t
+JOIN parti p USING (pid)
+JOIN turnering tu USING (tid)
+WHERE t.tur = 1
+GROUP BY tu.spilltype, t.trekk)
+UNION ALL
+(SELECT 'uavhengig' AS spilltype, t.trekk, count(*) AS antall_apninger
+FROM trekk t
+JOIN parti p USING (pid)
+WHERE p.tid IS NULL AND t.tur = 1
+GROUP BY trekk))
+
+SELECT a1.spilltype, a1.trekk, a1.antall_apninger
+FROM apningstrekk a1
+WHERE a1.antall_apninger = (
+        SELECT MAX(antall_apninger)
+        FROM apningstrekk a2
+        WHERE a1.spilltype = a2.spilltype);
+
+
+
+
+
+
+
+
+
+
+
+
 
